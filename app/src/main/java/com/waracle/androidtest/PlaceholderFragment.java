@@ -32,6 +32,7 @@ import java.net.URL;
  */
 public class PlaceholderFragment extends ListFragment {
 
+    private static final String ARG_CAKES = "ARG_CAKES"; //for saved instance state purposes
     private static String JSON_URL = "https://gist.githubusercontent.com/hart88/198f29ec5114a3ec3460/" +
             "raw/8dd19a88f9b8d24c23d9960f3300d0c917a4f07c/cake.json";
 
@@ -40,6 +41,7 @@ public class PlaceholderFragment extends ListFragment {
     private ListView mListView;
     private MyAdapter mAdapter;
     private ProgressBar loader;
+    private JSONArray jsonArray;
 
     public PlaceholderFragment() { /**/ }
 
@@ -62,8 +64,35 @@ public class PlaceholderFragment extends ListFragment {
         mAdapter = new MyAdapter();
         mListView.setAdapter(mAdapter);
 
-        // Load data from net.
-        new CakesAsyncTask().execute();
+        //handle screen rotation
+        if (savedInstanceState != null && savedInstanceState.containsKey(ARG_CAKES)){
+            try {
+
+                mAdapter.setItems(new JSONArray(savedInstanceState.getString(ARG_CAKES)));
+                mAdapter.notifyDataSetChanged();
+                this.jsonArray = new JSONArray(savedInstanceState.getString(ARG_CAKES));
+            } catch (JSONException e) {
+
+                // Load data from net.
+                new CakesAsyncTask().execute();
+                e.printStackTrace();
+            }
+        }else {
+
+            // Load data from net.
+            new CakesAsyncTask().execute();
+        }
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+
+        if (this.jsonArray != null){
+
+            outState.putString(ARG_CAKES, this.jsonArray.toString());
+        }
+
+        super.onSaveInstanceState(outState);
     }
 
     private JSONArray loadData() throws IOException, JSONException {
@@ -152,6 +181,7 @@ public class PlaceholderFragment extends ListFragment {
                 return;
 
             Log.i(TAG, "onPostExecute: " + jsonArray.toString());
+            PlaceholderFragment.this.jsonArray = jsonArray;
             mAdapter.setItems(jsonArray);
             mAdapter.notifyDataSetChanged();
         }

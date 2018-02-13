@@ -56,7 +56,7 @@ public class MyAdapter extends BaseAdapter {
     @Override
     public long getItemId(int position) {
 
-        return 0;
+        return position;
     }
 
     @SuppressLint("ViewHolder")
@@ -65,6 +65,7 @@ public class MyAdapter extends BaseAdapter {
 
         ViewHolder viewHolder;
 
+        //View holder pattern
         if (convertView == null){
 
             LayoutInflater inflater = LayoutInflater.from(parent.getContext());
@@ -81,12 +82,12 @@ public class MyAdapter extends BaseAdapter {
         }
 
         try {
+
             viewHolder.image.setImageBitmap(null);
             JSONObject object = (JSONObject) getItem(position);
             viewHolder.title.setText(object.getString("title"));
             viewHolder.desc.setText(object.getString("desc"));
             mImageLoader.load(object.getString("image"), viewHolder.image);
-
         } catch (JSONException e) {
 
             e.printStackTrace();
@@ -100,6 +101,7 @@ public class MyAdapter extends BaseAdapter {
         mItems = items;
     }
 
+    //View holder pattern
     private class ViewHolder {
 
         TextView title;
