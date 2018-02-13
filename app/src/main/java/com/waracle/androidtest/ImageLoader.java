@@ -5,6 +5,7 @@ import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.text.TextUtils;
 import android.util.Log;
+import android.widget.Adapter;
 import android.widget.ImageView;
 
 import java.io.IOException;
@@ -25,36 +26,25 @@ public class ImageLoader {
     /**
      * Simple function for loading a bitmap image from the web
      *
-     * @param url       image url
+     * @param cake       image url
      * @param imageView view to set image too.
      */
-    public void load(String url, ImageView imageView) {
-        if (TextUtils.isEmpty(url)) {
+    public void load(Cake cake, ImageView imageView) {
+        if (TextUtils.isEmpty(cake.getImageUrl())) {
             throw new InvalidParameterException("URL is empty!");
         }
 
-        // Can you think of a way to improve loading of bitmaps
-        // that have already been loaded previously??
-
-        new LoadImageAsyncTask(imageView).execute(url);
-//        try {
-//            setImageView(imageView, convertToBitmap(loadImageData(url)));
-//        } catch (IOException e) {
-//            Log.e(TAG, e.getMessage());
-//        }
+        new LoadImageAsyncTask(imageView, cake).execute(cake.getImageUrl());
     }
-
-//    private static byte[] loadImageData(String url) throws IOException {
-//
-//
-//    }
 
     private static class LoadImageAsyncTask extends AsyncTask<String,Void,byte[]>{
 
-        private final ImageView imageView;
+        private ImageView imageView;
+        private Cake cake;
 
-        public LoadImageAsyncTask(ImageView imageView) {
+        public LoadImageAsyncTask(ImageView imageView, Cake cake) {
             this.imageView = imageView;
+            this.cake = cake;
         }
 
         @Override
@@ -88,7 +78,10 @@ public class ImageLoader {
                 return;
 
             super.onPostExecute(bytes);
-            setImageView(imageView, convertToBitmap(bytes));
+
+            Bitmap imageBitmap = convertToBitmap(bytes);
+            setImageView(imageView, imageBitmap);
+            cake.setImageBitmap(imageBitmap);
         }
     }
 

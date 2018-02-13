@@ -16,12 +16,14 @@ import android.widget.ProgressBar;
 
 import org.json.JSONArray;
 import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.ArrayList;
 
 /**
  * Fragment is responsible for loading in some JSON and
@@ -41,7 +43,7 @@ public class PlaceholderFragment extends ListFragment {
     private ListView mListView;
     private MyAdapter mAdapter;
     private ProgressBar loader;
-    private JSONArray jsonArray;
+    private ArrayList<Cake> cakes;
 
     public PlaceholderFragment() { /**/ }
 
@@ -66,17 +68,12 @@ public class PlaceholderFragment extends ListFragment {
 
         //handle screen rotation
         if (savedInstanceState != null && savedInstanceState.containsKey(ARG_CAKES)){
-            try {
 
-                mAdapter.setItems(new JSONArray(savedInstanceState.getString(ARG_CAKES)));
-                mAdapter.notifyDataSetChanged();
-                this.jsonArray = new JSONArray(savedInstanceState.getString(ARG_CAKES));
-            } catch (JSONException e) {
+            ArrayList<Cake> cakes = savedInstanceState.getParcelableArrayList(ARG_CAKES);
 
-                // Load data from net.
-                new CakesAsyncTask().execute();
-                e.printStackTrace();
-            }
+            mAdapter.setItems(cakes);
+            mAdapter.notifyDataSetChanged();
+            this.cakes = cakes;
         }else {
 
             // Load data from net.
@@ -87,9 +84,9 @@ public class PlaceholderFragment extends ListFragment {
     @Override
     public void onSaveInstanceState(Bundle outState) {
 
-        if (this.jsonArray != null){
+        if (this.cakes != null){
 
-            outState.putString(ARG_CAKES, this.jsonArray.toString());
+            outState.putParcelableArrayList(ARG_CAKES, this.cakes);
         }
 
         super.onSaveInstanceState(outState);
@@ -181,9 +178,29 @@ public class PlaceholderFragment extends ListFragment {
                 return;
 
             Log.i(TAG, "onPostExecute: " + jsonArray.toString());
-            PlaceholderFragment.this.jsonArray = jsonArray;
-            mAdapter.setItems(jsonArray);
+            ArrayList<Cake> networkCakes = convertJsonArrayToCakes(jsonArray);
+            PlaceholderFragment.this.cakes =  networkCakes;
+            mAdapter.setItems(networkCakes);
             mAdapter.notifyDataSetChanged();
         }
+    }
+
+    private ArrayList<Cake> convertJsonArrayToCakes(JSONArray items) {
+
+        ArrayList<Cake> cakes = new ArrayList<>();
+
+        for (int i = 0; i < items.length(); i ++){
+            try {
+                JSONObject cakeJsonObject = items.getJSONObject(i);
+                cakes.add(new Cake(cakeJsonObject.getString("title"),
+                        cakeJsonObject.getString("desc"),
+                        cakeJsonObject.getString("image")));
+            } catch (JSONException e) {
+                e.printStackTrace();
+
+            }
+        }
+
+        return cakes;
     }
 }

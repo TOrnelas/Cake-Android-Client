@@ -1,6 +1,7 @@
 package com.waracle.androidtest;
 
 import android.annotation.SuppressLint;
+import android.graphics.Bitmap;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,6 +14,8 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
+
 /**
  * Created by tiagoornelas on 13/02/2018.
  */
@@ -20,15 +23,15 @@ import org.json.JSONObject;
 public class MyAdapter extends BaseAdapter {
 
     // Can you think of a better way to represent these items???
-    private JSONArray mItems;
+    private ArrayList<Cake> mItems;
     private ImageLoader mImageLoader;
 
     public MyAdapter() {
 
-        this(new JSONArray());
+        this(new ArrayList<Cake>());
     }
 
-    public MyAdapter(JSONArray items) {
+    public MyAdapter(ArrayList<Cake> items) {
 
         mItems = items;
         mImageLoader = new ImageLoader();
@@ -37,20 +40,13 @@ public class MyAdapter extends BaseAdapter {
     @Override
     public int getCount() {
 
-        return mItems.length();
+        return mItems.size();
     }
 
     @Override
-    public Object getItem(int position) {
+    public Cake getItem(int position) {
 
-        try {
-
-            return mItems.getJSONObject(position);
-        } catch (JSONException e) {
-
-            Log.e("", e.getMessage());
-        }
-        return null;
+        return mItems.get(position);
     }
 
     @Override
@@ -79,30 +75,28 @@ public class MyAdapter extends BaseAdapter {
         }else {
 
             viewHolder = (ViewHolder) convertView.getTag();
-        }
-
-        try {
-
             viewHolder.image.setImageBitmap(null);
-            JSONObject object = (JSONObject) getItem(position);
-            viewHolder.title.setText(object.getString("title"));
-            viewHolder.desc.setText(object.getString("desc"));
-            mImageLoader.load(object.getString("image"), viewHolder.image);
-        } catch (JSONException e) {
-
-            e.printStackTrace();
         }
+
+        Cake cake =  getItem(position);
+        viewHolder.title.setText(cake.getTitle());
+        viewHolder.desc.setText(cake.getDescription());
+
+        if (cake.getImageBitmap() == null)
+            mImageLoader.load(cake, viewHolder.image);
+        else
+            viewHolder.image.setImageBitmap(cake.getImageBitmap());
 
         return convertView;
     }
 
-    public void setItems(JSONArray items) {
+    public void setItems(ArrayList<Cake> items) {
 
         mItems = items;
     }
 
     //View holder pattern
-    private class ViewHolder {
+    public class ViewHolder {
 
         TextView title;
         TextView desc;
