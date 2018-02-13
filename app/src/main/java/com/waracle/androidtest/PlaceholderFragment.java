@@ -35,7 +35,7 @@ import java.util.ArrayList;
 public class PlaceholderFragment extends ListFragment {
 
     private static final String ARG_CAKES = "ARG_CAKES"; //for saved instance state purposes
-    private static String JSON_URL = "https://gist.githubusercontent.com/hart88/198f29ec5114a3ec3460/" +
+    private static final String JSON_URL = "https://gist.githubusercontent.com/hart88/198f29ec5114a3ec3460/" +
             "raw/8dd19a88f9b8d24c23d9960f3300d0c917a4f07c/cake.json";
 
     private static final String TAG = PlaceholderFragment.class.getSimpleName();
@@ -84,10 +84,8 @@ public class PlaceholderFragment extends ListFragment {
     @Override
     public void onSaveInstanceState(Bundle outState) {
 
-        if (this.cakes != null){
-
+        if (this.cakes != null)
             outState.putParcelableArrayList(ARG_CAKES, this.cakes);
-        }
 
         super.onSaveInstanceState(outState);
     }
@@ -96,6 +94,7 @@ public class PlaceholderFragment extends ListFragment {
 
         URL url = new URL(JSON_URL);
         HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
+        urlConnection.setRequestProperty ("Cache-Control", "public");
 
         try {
 

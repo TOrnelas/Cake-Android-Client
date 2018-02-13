@@ -1,18 +1,12 @@
 package com.waracle.androidtest;
 
 import android.annotation.SuppressLint;
-import android.graphics.Bitmap;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.util.ArrayList;
 
@@ -72,11 +66,9 @@ public class MyAdapter extends BaseAdapter {
             viewHolder.desc = convertView.findViewById(R.id.desc);
             viewHolder.image = convertView.findViewById(R.id.image);
             convertView.setTag(viewHolder);
-        }else {
-
+        }else
             viewHolder = (ViewHolder) convertView.getTag();
-            viewHolder.image.setImageBitmap(null);
-        }
+
 
         Cake cake =  getItem(position);
         viewHolder.title.setText(cake.getTitle());

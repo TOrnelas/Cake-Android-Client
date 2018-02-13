@@ -10,9 +10,9 @@ import android.os.Parcelable;
 
 public class Cake implements Parcelable{
 
-    String title, description;
-    String imageUrl;
-    Bitmap imageBitmap;
+    private String title, description;
+    private String imageUrl;
+    private Bitmap imageBitmap;
 
     public Cake(String title, String description, String imageUrl) {
 
@@ -20,7 +20,6 @@ public class Cake implements Parcelable{
         this.description = description;
         this.imageUrl = imageUrl;
     }
-
 
     public String getTitle() {
         return title;

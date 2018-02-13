@@ -4,8 +4,6 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.text.TextUtils;
-import android.util.Log;
-import android.widget.Adapter;
 import android.widget.ImageView;
 
 import java.io.IOException;
@@ -56,6 +54,7 @@ public class ImageLoader {
             try {
 
                 connection = (HttpURLConnection) new URL(strings[0]).openConnection();
+                connection.setRequestProperty ("Cache-Control", "public");
                 // Read data from workstation
                 inputStream = connection.getInputStream();
 
