@@ -4,6 +4,7 @@ package com.waracle.androidtest;
  * Created by tiagoornelas on 13/02/2018.
  */
 
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
 import android.util.Log;
@@ -11,6 +12,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -37,15 +39,16 @@ public class PlaceholderFragment extends ListFragment {
 
     private ListView mListView;
     private MyAdapter mAdapter;
+    private ProgressBar loader;
 
     public PlaceholderFragment() { /**/ }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
         View rootView = inflater.inflate(R.layout.fragment_main, container, false);
         mListView = rootView.findViewById(android.R.id.list);
+        loader = rootView.findViewById(R.id.progressBar);
 
         return rootView;
     }
@@ -60,14 +63,7 @@ public class PlaceholderFragment extends ListFragment {
         mListView.setAdapter(mAdapter);
 
         // Load data from net.
-        try {
-
-            JSONArray array = loadData();
-            mAdapter.setItems(array);
-        } catch (IOException | JSONException e) {
-
-            Log.e(TAG, e.getMessage());
-        }
+        new CakesAsyncTask().execute();
     }
 
     private JSONArray loadData() throws IOException, JSONException {
@@ -118,5 +114,46 @@ public class PlaceholderFragment extends ListFragment {
             }
         }
         return "UTF-8";
+    }
+
+    public void refresh() {
+
+        new CakesAsyncTask().execute();
+    }
+
+    private class CakesAsyncTask extends AsyncTask<Void,Void,JSONArray>{
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            loader.setVisibility(View.VISIBLE);
+        }
+
+        @Override
+        protected JSONArray doInBackground(Void... voids) {
+
+            try {
+
+                return loadData();
+            } catch (IOException | JSONException e) {
+
+                e.printStackTrace();
+                return null;
+            }
+        }
+
+        @Override
+        protected void onPostExecute(JSONArray jsonArray) {
+
+            super.onPostExecute(jsonArray);
+            loader.setVisibility(View.GONE);
+
+            if (jsonArray == null)
+                return;
+
+            Log.i(TAG, "onPostExecute: " + jsonArray.toString());
+            mAdapter.setItems(jsonArray);
+            mAdapter.notifyDataSetChanged();
+        }
     }
 }

@@ -63,32 +63,47 @@ public class MyAdapter extends BaseAdapter {
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
 
-        LayoutInflater inflater = LayoutInflater.from(parent.getContext());
-        View root = inflater.inflate(R.layout.list_item_layout, parent, false);
+        ViewHolder viewHolder;
 
-        if (root != null) {
+        if (convertView == null){
 
-            TextView title = root.findViewById(R.id.title);
-            TextView desc = root.findViewById(R.id.desc);
-            ImageView image = root.findViewById(R.id.image);
+            LayoutInflater inflater = LayoutInflater.from(parent.getContext());
+            convertView = inflater.inflate(R.layout.list_item_layout, parent, false);
 
-            try {
+            viewHolder = new ViewHolder();
+            viewHolder.title = convertView.findViewById(R.id.title);
+            viewHolder.desc = convertView.findViewById(R.id.desc);
+            viewHolder.image = convertView.findViewById(R.id.image);
+            convertView.setTag(viewHolder);
+        }else {
 
-                JSONObject object = (JSONObject) getItem(position);
-                title.setText(object.getString("title"));
-                desc.setText(object.getString("desc"));
-                mImageLoader.load(object.getString("image"), image);
-            } catch (JSONException e) {
-
-                e.printStackTrace();
-            }
+            viewHolder = (ViewHolder) convertView.getTag();
         }
 
-        return root;
+        try {
+            viewHolder.image.setImageBitmap(null);
+            JSONObject object = (JSONObject) getItem(position);
+            viewHolder.title.setText(object.getString("title"));
+            viewHolder.desc.setText(object.getString("desc"));
+            mImageLoader.load(object.getString("image"), viewHolder.image);
+
+        } catch (JSONException e) {
+
+            e.printStackTrace();
+        }
+
+        return convertView;
     }
 
     public void setItems(JSONArray items) {
 
         mItems = items;
+    }
+
+    private class ViewHolder {
+
+        TextView title;
+        TextView desc;
+        ImageView image;
     }
 }

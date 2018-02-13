@@ -60,6 +60,9 @@ public class MainActivity extends AppCompatActivity {
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_refresh) {
+
+            ((PlaceholderFragment)getSupportFragmentManager().findFragmentById(R.id.container)).refresh();
+
             return true;
         }
 

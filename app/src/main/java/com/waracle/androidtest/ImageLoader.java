@@ -2,6 +2,7 @@ package com.waracle.androidtest;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.os.AsyncTask;
 import android.text.TextUtils;
 import android.util.Log;
 import android.widget.ImageView;
@@ -35,35 +36,59 @@ public class ImageLoader {
         // Can you think of a way to improve loading of bitmaps
         // that have already been loaded previously??
 
-        try {
-            setImageView(imageView, convertToBitmap(loadImageData(url)));
-        } catch (IOException e) {
-            Log.e(TAG, e.getMessage());
-        }
+        new LoadImageAsyncTask(imageView).execute(url);
+//        try {
+//            setImageView(imageView, convertToBitmap(loadImageData(url)));
+//        } catch (IOException e) {
+//            Log.e(TAG, e.getMessage());
+//        }
     }
 
-    private static byte[] loadImageData(String url) throws IOException {
-        HttpURLConnection connection = (HttpURLConnection) new URL(url).openConnection();
-        InputStream inputStream = null;
-        try {
+//    private static byte[] loadImageData(String url) throws IOException {
+//
+//
+//    }
+
+    private static class LoadImageAsyncTask extends AsyncTask<String,Void,byte[]>{
+
+        private final ImageView imageView;
+
+        public LoadImageAsyncTask(ImageView imageView) {
+            this.imageView = imageView;
+        }
+
+        @Override
+        protected byte[] doInBackground(String... strings) {
+
+            HttpURLConnection connection = null;
+            InputStream inputStream = null;
+
             try {
+
+                connection = (HttpURLConnection) new URL(strings[0]).openConnection();
                 // Read data from workstation
                 inputStream = connection.getInputStream();
+
+                return StreamUtils.readUnknownFully(inputStream);
             } catch (IOException e) {
-                // Read the error from the workstation
-                inputStream = connection.getErrorStream();
+
+                e.printStackTrace();
+                return null;
+            }finally {
+
+                StreamUtils.close(inputStream);
+                if(connection != null) connection.disconnect();
             }
+        }
 
-            // Can you think of a way to make the entire
-            // HTTP more efficient using HTTP headers??
+        @Override
+        protected void onPostExecute(byte[] bytes) {
 
-            return StreamUtils.readUnknownFully(inputStream);
-        } finally {
-            // Close the input stream if it exists.
-            StreamUtils.close(inputStream);
+            if (bytes == null)
+                return;
 
-            // Disconnect the connection
-            connection.disconnect();
+            super.onPostExecute(bytes);
+            setImageView(imageView, convertToBitmap(bytes));
         }
     }
 
